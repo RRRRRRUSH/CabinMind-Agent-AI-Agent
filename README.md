@@ -254,6 +254,6 @@ smart-cabin-agent/
 
 <div align="center">
 
-**© 2026 RongYu** · Made with ❤️ for Smart Cockpit
+**© 2026**
 
 </div>
