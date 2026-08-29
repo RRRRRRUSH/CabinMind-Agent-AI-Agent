@@ -100,8 +100,6 @@ DEEPSEEK_API_KEY=sk-your-key-here
 MOCK_MODE=false
 ```
 
-> 🔒 **安全提示**：`.env` 已被 `.gitignore` 忽略，请勿将其提交到版本库，也不要泄露你的 API Key。
-
 ### 2️⃣ 一键启动（推荐）
 
 **Linux / macOS：**
