@@ -6,6 +6,8 @@
 
 让座舱真正"听懂"人话 —— 一个面向智能座舱场景的 AI Agent 原型，集**意图识别 · 工具调用 · 上下文记忆**于一身，Java + Python 混合架构，开箱即用。
 
+> **EN** · CabinMind is an AI agent prototype for smart cockpit scenarios, built on a Java (Spring Boot) + Python (Flask) hybrid architecture powered by DeepSeek LLM — custom intent-classification algorithms, extensible tool calling, Redis-backed context memory, and a mock mode for key-free development. Fully containerized with Docker.
+
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.1-6DB33F?logo=spring&logoColor=white)](https://spring.io/projects/spring-boot)
 [![Flask](https://img.shields.io/badge/Flask-2.3-000000?logo=flask)](https://flask.palletsprojects.com/)
 [![DeepSeek](https://img.shields.io/badge/DeepSeek-API-4D6BFE)](https://www.deepseek.com/)
