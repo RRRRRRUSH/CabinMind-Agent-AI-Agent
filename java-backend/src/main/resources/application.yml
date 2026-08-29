@@ -1,0 +1,95 @@
+# Spring Boot 应用配置
+spring:
+  application:
+    name: smart-cabin-agent
+  profiles:
+    active: dev
+
+  # 服务器配置
+  server:
+    port: ${JAVA_SERVER_PORT:8080}
+    servlet:
+      context-path: /
+    compression:
+      enabled: true
+      mime-types: text/html,text/xml,text/plain,text/css,text/javascript,application/javascript,application/json
+      min-response-size: 1024
+
+  # Redis配置（可选）
+  redis:
+    host: ${REDIS_HOST:localhost}
+    port: ${REDIS_PORT:6379}
+    password: ${REDIS_PASSWORD:}
+    database: ${REDIS_DB:0}
+    timeout: 3000ms
+    lettuce:
+      pool:
+        max-active: 8
+        max-idle: 8
+        min-idle: 0
+        max-wait: -1ms
+
+  # Jackson配置
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: Asia/Shanghai
+    serialization:
+      write-dates-as-timestamps: false
+    deserialization:
+      fail-on-unknown-properties: false
+
+# 应用配置
+app:
+  name: ${APP_NAME:smart-cabin-agent}
+  version: ${APP_VERSION:1.0.0}
+  environment: ${APP_ENVIRONMENT:development}
+  
+  # Python AI服务配置
+  python:
+    service:
+      url: http://localhost:${PYTHON_SERVER_PORT:5000}
+      timeout: 10000
+      retry:
+        max-attempts: 3
+        backoff-delay: 1000
+
+  # Agent配置
+  agent:
+    max-context-length: ${MAX_CONTEXT_LENGTH:10}
+    session-timeout-minutes: ${SESSION_TIMEOUT_MINUTES:30}
+    tool-execution-timeout-ms: ${TOOL_EXECUTION_TIMEOUT_MS:5000}
+
+# 日志配置
+logging:
+  level:
+    com.smartcabin: ${LOG_LEVEL:INFO}
+    org.springframework: WARN
+    org.hibernate: WARN
+  file:
+    name: ${LOG_FILE_PATH:./logs/app.log}
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+
+# SpringDoc OpenAPI配置
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: method
+    tags-sorter: alpha
+  packages-to-scan: com.smartcabin.controller
+  paths-to-match: /api/**
+
+# 管理端点配置
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always
+    metrics:
+      enabled: true

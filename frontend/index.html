@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智能座舱AI Agent演示</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: white;
+            padding: 30px 40px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+        
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            max-width: 800px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+        
+        .content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            padding: 40px;
+        }
+        
+        @media (max-width: 768px) {
+            .content {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .chat-section, .details-section {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+        
+        .section-title {
+            font-size: 1.5rem;
+            color: #4f46e5;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e5e7eb;
+            font-weight: 600;
+        }
+        
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            height: 500px;
+        }
+        
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            background: #f9fafb;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #e5e7eb;
+        }
+        
+        .message {
+            margin-bottom: 15px;
+            padding: 12px 16px;
+            border-radius: 12px;
+            max-width: 80%;
+            line-height: 1.5;
+        }
+        
+        .user-message {
+            background: #4f46e5;
+            color: white;
+            margin-left: auto;
+            border-bottom-right-radius: 4px;
+        }
+        
+        .agent-message {
+            background: #e5e7eb;
+            color: #374151;
+            margin-right: auto;
+            border-bottom-left-radius: 4px;
+        }
+        
+        .message-time {
+            font-size: 0.8rem;
+            opacity: 0.7;
+            margin-top: 5px;
+        }
+        
+        .input-container {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .message-input {
+            flex: 1;
+            padding: 15px;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+        
+        .message-input:focus {
+            outline: none;
+            border-color: #4f46e5;
+        }
+        
+        .send-button {
+            background: #4f46e5;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.2s;
+        }
+        
+        .send-button:hover {
+            background: #4338ca;
+            transform: translateY(-2px);
+        }
+        
+        .send-button:active {
+            transform: translateY(0);
+        }
+        
+        .quick-commands {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .quick-command {
+            background: #f3f4f6;
+            border: 1px solid #e5e7eb;
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+        }
+        
+        .quick-command:hover {
+            background: #4f46e5;
+            color: white;
+            transform: translateY(-2px);
+        }
+        
+        .details-content {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+        
+        .detail-card {
+            background: #f9fafb;
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 4px solid #4f46e5;
+        }
+        
+        .detail-title {
+            font-weight: 600;
+            color: #4f46e5;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+        
+        .detail-value {
+            font-size: 1rem;
+            color: #374151;
+            line-height: 1.6;
+        }
+        
+        .json-display {
+            background: #1f2937;
+            color: #e5e7eb;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        
+        .status-online {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        
+        .status-offline {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+        
+        .status-online .status-dot {
+            background: #10b981;
+        }
+        
+        .status-offline .status-dot {
+            background: #ef4444;
+        }
+        
+        .confidence-bar {
+            height: 10px;
+            background: #e5e7eb;
+            border-radius: 5px;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+        
+        .confidence-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #10b981 0%, #3b82f6 100%);
+            border-radius: 5px;
+            transition: width 0.5s ease;
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: #6b7280;
+            font-size: 0.9rem;
+            border-top: 1px solid #e5e7eb;
+            background: #f9fafb;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 10px;
+            color: #6b7280;
+        }
+        
+        .loading.active {
+            display: block;
+        }
+        
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #4f46e5;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            margin-right: 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .error-message {
+            background: #fee2e2;
+            color: #991b1b;
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 10px;
+            display: none;
+        }
+        
+        .error-message.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚗 智能座舱AI Agent演示</h1>
+            <p>基于Java + Python混合架构的智能座舱AI Agent原型，展示意图识别、工具调用和上下文记忆能力</p>
+        </div>
+        
+        <div class="content">
+            <div class="chat-section">
+                <h2 class="section-title">💬 智能对话</h2>
+                <div class="chat-container">
+                    <div class="chat-messages" id="chatMessages">
+                        <div class="message agent-message">
+                            <div>您好！我是智能座舱助手，可以帮您控制空调、播放音乐、设置导航和操作车窗。</div>
+                            <div class="message-time">系统提示</div>
+                        </div>
+                        <div class="message agent-message">
+                            <div>您可以尝试说："把空调温度调到22度" 或 "播放周杰伦的音乐"</div>
+                            <div class="message-time">系统提示</div>
+                        </div>
+                    </div>
+                    
+                    <div class="input-container">
+                        <input type="text" 
+                               class="message-input" 
+                               id="messageInput" 
+                               placeholder="输入您的指令，例如：把空调温度调到22度"
+                               onkeypress="handleKeyPress(event)">
+                        <button class="send-button" onclick="sendMessage()">发送</button>
+                    </div>
+                    
+                    <div class="loading" id="loading">
+                        <div class="spinner"></div>
+                        正在处理您的指令...
+                    </div>
+                    
+                    <div class="error-message" id="errorMessage"></div>
+                    
+                    <div class="quick-commands">
+                        <div class="quick-command" onclick="useQuickCommand('把空调温度调到22度')">🌡️ 空调调温</div>
+                        <div class="quick-command" onclick="useQuickCommand('播放周杰伦的音乐')">🎵 播放音乐</div>
+                        <div class="quick-command" onclick="useQuickCommand('导航到最近的加油站')">🗺️ 导航加油站</div>
+                        <div class="quick-command" onclick="useQuickCommand('打开驾驶座车窗')">🚗 打开车窗</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="details-section">
+                <h2 class="section-title">🔍 识别详情</h2>
+                <div class="details-content">
+                    <div class="detail-card">
+                        <div class="detail-title">系统状态</div>
+                        <div class="detail-value">
+                            <div class="status-indicator status-online" id="systemStatus">
+                                <div class="status-dot"></div>
+                                <span>系统运行正常</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="detail-card">
+                        <div class="detail-title">识别意图</div>
+                        <div class="detail-value">
+                            <div id="currentIntent">等待用户输入...</div>
+                            <div class="confidence-bar">
+                                <div class="confidence-fill" id="confidenceBar" style="width: 0%"></div>
+                            </div>
+                            <div style="margin-top: 5px; font-size: 0.9rem;">
+                                置信度: <span id="confidenceValue">0%</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="detail-card">
+                        <div class="detail-title">提取参数</div>
+                        <div class="detail-value">
+                            <div id="currentParameters">无</div>
+                        </div>
+                    </div>
+                    
+                    <div class="detail-card">
+                        <div class="detail-title">识别方法</div>
+                        <div class="detail-value">
+                            <div id="recognitionMethod">等待识别...</div>
+                            <div style="margin-top: 10px; font-size: 0.9rem; color: #6b7280;">
+                                <div>DeepSeek权重: <span id="deepseekWeight">70%</span></div>
+                                <div>自定义算法权重: <span id="classifierWeight">30%</span></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="detail-card">
+                        <div class="detail-title">完整响应数据</div>
+                        <div class="detail-value">
+                            <div class="json-display" id="jsonResponse">
+                                {"status": "等待用户输入"}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>智能座舱AI Agent演示 | Java Spring Boot + Python Flask + DeepSeek API | 技术栈展示</p>
+            <p style="margin-top: 5px;">支持意图识别、工具调用、上下文记忆 | 自定义算法混合决策</p>
+        </div>
+    </div>
+
+    <script>
+        // 会话状态
+        let sessionId = 'demo-session-' + Date.now();
+        let conversationHistory = [];
+        
+        // 系统状态检查
+        async function checkSystemStatus() {
+            try {
+                const response = await fetch('http://localhost:8080/api/health');
+                if (response.ok) {
+                    document.getElementById('systemStatus').className = 'status-indicator status-online';
+                    document.getElementById('systemStatus').innerHTML = '<div class="status-dot"></div><span>系统运行正常</span>';
+                    return true;
+                }
+            } catch (error) {
+                console.error('系统状态检查失败:', error);
+            }
+            
+            document.getElementById('systemStatus').className = 'status-indicator status-offline';
+            document.getElementById('systemStatus').innerHTML = '<div class="status-dot"></div><span>系统连接失败</span>';
+            return false;
+        }
+        
+        // 发送消息
+        async function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const message = input.value.trim();
+            
+            if (!message) {
+                return;
+            }
+            
+            // 添加用户消息到聊天界面
+            addMessageToChat(message, 'user');
+            input.value = '';
+            
+            // 显示加载状态
+            document.getElementById('loading').classList.add('active');
+            document.getElementById('errorMessage').classList.remove('active');
+            
+            try {
+                // 构建请求数据
+                const requestData = {
+                    message: message,
+                    sessionId: sessionId,
+                    context: conversationHistory.slice(-3) // 只发送最近3条上下文
+                };
+                
+                // 发送请求到Java后端
+                const response = await fetch('http://localhost:8080/api/agent/process', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(requestData)
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const result = await response.json();
+                
+                // 更新对话历史
+                conversationHistory.push(message);
+                
+                // 添加Agent回复到聊天界面
+                addMessageToChat(result.response || '指令已处理', 'agent');
+                
+                // 更新详情面板
+                updateDetailsPanel(result);
+                
+                // 保存完整响应数据
+                document.getElementById('jsonResponse').textContent = JSON.stringify(result, null, 2);
+                
+            } catch (error) {
+                console.error('发送消息失败:', error);
+                document.getElementById('errorMessage').textContent = `错误: ${error.message}`;
+                document.getElementById('errorMessage').classList.add('active');
+                
+                // 添加错误消息到聊天界面
+                addMessageToChat('抱歉，处理您的指令时出现了问题。请检查系统连接。', 'agent');
+            } finally {
+                // 隐藏加载状态
+                document.getElementById('loading').classList.remove('active');
+            }
+        }
+        
+        // 使用快捷命令
+        function useQuickCommand(command) {
+            document.getElementById('messageInput').value = command;
+            sendMessage();
+        }
+        
+        // 处理回车键
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+        
+        // 添加消息到聊天界面
+        function addMessageToChat(message, sender) {
+            const chatMessages = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}-message`;
+            
+            const time = new Date().toLocaleTimeString('zh-CN', { 
+                hour: '2-digit', 
+                minute: '2-digit',
+                second: '2-digit'
+            });
+            
+            messageDiv.innerHTML = `
+                <div>${message}</div>
+                <div class="message-time">${time}</div>
+            `;
+            
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+        
+        // 更新详情面板
+        function updateDetailsPanel(result) {
+            // 更新意图
+            const intent = result.intent || 'unknown';
+            const confidence = result.confidence || 0;
+            const parameters = result.parameters || {};
+            const method = result.details?.recognition_details?.recognition_method || 'unknown';
+            
+            // 更新意图显示
+            document.getElementById('currentIntent').textContent = intent;
+            
+            // 更新置信度
+            const confidencePercent = Math.round(confidence * 100);
+            document.getElementById('confidenceValue').textContent = `${confidencePercent}%`;
+            document.getElementById('confidenceBar').style.width = `${confidencePercent}%`;
+            
+            // 更新参数显示
+            if (Object.keys(parameters).length > 0) {
+                const paramsText = Object.entries(parameters)
+                    .map(([key, value]) => `${key}: ${value}`)
+                    .join(', ');
+                document.getElementById('currentParameters').textContent = paramsText;
+            } else {
+                document.getElementById('currentParameters').textContent = '无';
+            }
+            
+            // 更新识别方法
+            document.getElementById('recognitionMethod').textContent = method;
+            
+            // 更新权重显示（从结果中提取或使用默认值）
+            const deepseekWeight = result.details?.recognition_details?.components?.deepseek?.weight || 70;
+            const classifierWeight = result.details?.recognition_details?.components?.classifier?.weight || 30;
+            document.getElementById('deepseekWeight').textContent = `${deepseekWeight}%`;
+            document.getElementById('classifierWeight').textContent = `${classifierWeight}%`;
+        }
+        
+        // 页面加载时检查系统状态
+        window.onload = function() {
+            checkSystemStatus();
+            
+            // 每30秒检查一次系统状态
+            setInterval(checkSystemStatus, 30000);
+        };
+        
+        // 初始化示例
+        document.addEventListener('DOMContentLoaded', function() {
+            // 添加一些示例消息
+            setTimeout(() => {
+                addMessageToChat('欢迎使用智能座舱AI Agent演示系统！', 'agent');
+            }, 1000);
+        });
+    </script>
+</body>
+</html>
