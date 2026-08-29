@@ -1,0 +1,6 @@
+# GitHub 语言统计配置：让仓库主体语言反映后端（Java + Python）
+# 前端页面不计入语言检测
+frontend/** linguist-detectable=false
+*.html linguist-detectable=false
+*.css linguist-detectable=false
+*.js linguist-detectable=false
